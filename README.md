@@ -2,6 +2,10 @@
 
 TOG Rating is a Home Assistant custom integration that turns an indoor temperature sensor, an outdoor temperature sensor, and a weather entity into child clothing guidance with current, day, and night TOG recommendations.
 
+## Companion repositories
+
+- Dashboard card: https://github.com/Anton2079/lovelace-tog-rating-card
+
 ## HACS repository type
 
 Add this repository to HACS as an `Integration` repository.
@@ -29,7 +33,9 @@ Add this repository to HACS as an `Integration` repository.
 
 ## Companion dashboard card
 
-This integration repo does not install the Lovelace card. Publish the dashboard card as a separate HACS dashboard repository from the `release/dashboard-repo` package in the development workspace.
+This integration repo does not install the Lovelace card. Install the companion dashboard card from:
+
+- https://github.com/Anton2079/lovelace-tog-rating-card
 
 ## Before first public release
 
