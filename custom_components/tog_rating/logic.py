@@ -24,6 +24,8 @@ class RecommendationSnapshot:
     condition: str | None = None
     indoor_temp_c: float | None = None
     outdoor_temp_c: float | None = None
+    outdoor_temperature_source: str | None = None
+    outdoor_weight_percent: int | None = None
     wind_speed_kmh: float | None = None
     precipitation_probability: int | None = None
 
@@ -47,6 +49,8 @@ class RecommendationSnapshot:
             "condition": self.condition,
             "indoor_temperature_c": _rounded(self.indoor_temp_c),
             "outdoor_temperature_c": _rounded(self.outdoor_temp_c),
+            "outdoor_temperature_source": self.outdoor_temperature_source,
+            "outdoor_temperature_weight_percent": self.outdoor_weight_percent,
             "wind_speed_kmh": _rounded(self.wind_speed_kmh),
             "precipitation_probability": self.precipitation_probability,
         }
@@ -86,14 +90,17 @@ def calculate_recommendation(
     *,
     indoor_temp_c: float,
     outdoor_temp_c: float,
+    outdoor_weight: float,
     condition: str | None,
     source_label: str,
+    outdoor_temperature_source: str,
     forecast_time: datetime | None = None,
     wind_speed_kmh: float | None = None,
     precipitation_probability: int | None = None,
 ) -> RecommendationSnapshot:
     condition = condition or "unknown"
-    effective_temp = (indoor_temp_c * 0.65) + (outdoor_temp_c * 0.35)
+    indoor_weight = 1 - outdoor_weight
+    effective_temp = (indoor_temp_c * indoor_weight) + (outdoor_temp_c * outdoor_weight)
     adjustments: list[str] = []
 
     if condition in WET_CONDITIONS:
@@ -173,7 +180,7 @@ def calculate_recommendation(
 
     reasoning = (
         f"Effective temperature {effective_temp:.1f}°C based on indoor {indoor_temp_c:.1f}°C "
-        f"and outdoor {outdoor_temp_c:.1f}°C"
+        f"and outdoor {outdoor_temp_c:.1f}°C with {outdoor_weight * 100:.0f}% outdoor weighting"
     )
     if adjustments:
         reasoning = f"{reasoning}; adjusted for {', '.join(adjustments)}"
@@ -192,6 +199,8 @@ def calculate_recommendation(
         condition=condition,
         indoor_temp_c=indoor_temp_c,
         outdoor_temp_c=outdoor_temp_c,
+        outdoor_temperature_source=outdoor_temperature_source,
+        outdoor_weight_percent=round(outdoor_weight * 100),
         wind_speed_kmh=wind_speed_kmh,
         precipitation_probability=precipitation_probability,
     )

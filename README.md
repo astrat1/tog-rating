@@ -1,6 +1,6 @@
 # TOG Rating
 
-TOG Rating is a Home Assistant custom integration that turns an indoor temperature sensor, an outdoor temperature sensor, and a weather entity into child clothing guidance with current, day, and night TOG recommendations.
+TOG Rating is a Home Assistant custom integration that turns an indoor temperature sensor and a weather entity into child clothing guidance with current, day, and night TOG recommendations. An outdoor temperature sensor can also be supplied if you want to override the weather entity's current temperature, and outdoor influence is configurable.
 
 ## Companion repositories
 
@@ -23,7 +23,7 @@ Add this repository to HACS as an `Integration` repository.
 ## Recommended GitHub repository settings
 
 - Repository name: `tog-rating`
-- Description: `Home Assistant integration for child clothing and TOG recommendations using indoor, outdoor, and weather forecast data.`
+- Description: `Home Assistant integration for child clothing and TOG recommendations using indoor, weather, and optional outdoor temperature data.`
 - Topics: `home-assistant`, `hacs`, `home-assistant-integration`, `tog`, `weather`, `parenting`
 
 ## What this repo contains

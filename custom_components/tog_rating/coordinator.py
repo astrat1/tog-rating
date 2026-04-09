@@ -15,10 +15,12 @@ from .const import (
     CONF_INDOOR_SENSOR,
     CONF_NAME,
     CONF_OUTDOOR_SENSOR,
+    CONF_OUTDOOR_WEIGHT,
     CONF_WEATHER_ENTITY,
     DATA_CURRENT,
     DATA_DAY,
     DATA_NIGHT,
+    DEFAULT_OUTDOOR_WEIGHT,
     DOMAIN,
     FORECAST_DAILY,
     FORECAST_HOURLY,
@@ -34,9 +36,10 @@ class TogRatingCoordinator(DataUpdateCoordinator[dict[str, RecommendationSnapsho
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.config_entry = entry
         self.name = entry.data[CONF_NAME]
-        self.indoor_entity_id = entry.data[CONF_INDOOR_SENSOR]
-        self.outdoor_entity_id = entry.data[CONF_OUTDOOR_SENSOR]
-        self.weather_entity_id = entry.data[CONF_WEATHER_ENTITY]
+        self.indoor_entity_id = _entry_value(entry, CONF_INDOOR_SENSOR)
+        self.outdoor_entity_id = _entry_value(entry, CONF_OUTDOOR_SENSOR)
+        self.weather_entity_id = _entry_value(entry, CONF_WEATHER_ENTITY)
+        self.outdoor_weight = _entry_value(entry, CONF_OUTDOOR_WEIGHT, DEFAULT_OUTDOOR_WEIGHT) / 100
         self._unsubscribe_state_listener = None
 
         super().__init__(
@@ -49,9 +52,12 @@ class TogRatingCoordinator(DataUpdateCoordinator[dict[str, RecommendationSnapsho
     def start_listening(self) -> None:
         if self._unsubscribe_state_listener is not None:
             return
+        tracked_entities = [self.indoor_entity_id, self.weather_entity_id]
+        if self.outdoor_entity_id:
+            tracked_entities.append(self.outdoor_entity_id)
         self._unsubscribe_state_listener = async_track_state_change_event(
             self.hass,
-            [self.indoor_entity_id, self.outdoor_entity_id, self.weather_entity_id],
+            tracked_entities,
             self._handle_source_change,
         )
 
@@ -68,17 +74,13 @@ class TogRatingCoordinator(DataUpdateCoordinator[dict[str, RecommendationSnapsho
     async def _async_update_data(self) -> dict[str, RecommendationSnapshot | None]:
         try:
             indoor_state = self._get_state(self.indoor_entity_id)
-            outdoor_state = self._get_state(self.outdoor_entity_id)
             weather_state = self._get_state(self.weather_entity_id)
 
             indoor_temp_c = temperature_to_celsius(
                 _coerce_float(indoor_state.state, self.indoor_entity_id),
                 indoor_state.attributes.get(ATTR_UNIT_OF_MEASUREMENT),
             )
-            outdoor_temp_c = temperature_to_celsius(
-                _coerce_float(outdoor_state.state, self.outdoor_entity_id),
-                outdoor_state.attributes.get(ATTR_UNIT_OF_MEASUREMENT),
-            )
+            outdoor_temp_c, outdoor_source = self._current_outdoor_temperature(weather_state)
             wind_speed = self._wind_speed_from_weather(weather_state.attributes)
             precipitation_probability = weather_state.attributes.get("precipitation_probability")
 
@@ -86,8 +88,10 @@ class TogRatingCoordinator(DataUpdateCoordinator[dict[str, RecommendationSnapsho
                 DATA_CURRENT: calculate_recommendation(
                     indoor_temp_c=indoor_temp_c,
                     outdoor_temp_c=outdoor_temp_c,
+                    outdoor_weight=self.outdoor_weight,
                     condition=weather_state.state,
                     source_label="Current conditions",
+                    outdoor_temperature_source=outdoor_source,
                     wind_speed_kmh=wind_speed,
                     precipitation_probability=_safe_int(precipitation_probability),
                 ),
@@ -120,6 +124,28 @@ class TogRatingCoordinator(DataUpdateCoordinator[dict[str, RecommendationSnapsho
             return speed_to_kmh(_coerce_float(wind_speed, "weather wind_speed"), attributes.get("wind_speed_unit"))
         except (UpdateFailed, ValueError):
             return None
+
+    def _current_outdoor_temperature(self, weather_state) -> tuple[float, str]:
+        if self.outdoor_entity_id:
+            outdoor_state = self._get_state(self.outdoor_entity_id)
+            return (
+                temperature_to_celsius(
+                    _coerce_float(outdoor_state.state, self.outdoor_entity_id),
+                    outdoor_state.attributes.get(ATTR_UNIT_OF_MEASUREMENT),
+                ),
+                "sensor",
+            )
+
+        weather_temp = weather_state.attributes.get("temperature")
+        if weather_temp is None:
+            raise UpdateFailed(f"Weather entity {self.weather_entity_id} does not expose a current temperature")
+        return (
+            temperature_to_celsius(
+                _coerce_float(weather_temp, f"{self.weather_entity_id} temperature"),
+                weather_state.attributes.get("temperature_unit"),
+            ),
+            "weather",
+        )
 
     async def _async_get_forecast_sets(self) -> dict[str, Any]:
         for forecast_type in (FORECAST_DAILY, FORECAST_TWICE_DAILY, FORECAST_HOURLY):
@@ -249,8 +275,10 @@ class TogRatingCoordinator(DataUpdateCoordinator[dict[str, RecommendationSnapsho
         return calculate_recommendation(
             indoor_temp_c=indoor_temp_c,
             outdoor_temp_c=outdoor_temp_c,
+            outdoor_weight=self.outdoor_weight,
             condition=item.get("condition") or weather_state.state,
             source_label=source_label,
+            outdoor_temperature_source="forecast",
             forecast_time=self._parse_forecast_datetime(item),
             wind_speed_kmh=wind_speed,
             precipitation_probability=_safe_int(item.get("precipitation_probability")),
@@ -277,3 +305,7 @@ def _coerce_float(value: Any, label: str) -> float:
         return float(value)
     except (TypeError, ValueError) as err:
         raise UpdateFailed(f"Invalid numeric value for {label}: {value!r}") from err
+
+
+def _entry_value(entry: ConfigEntry, key: str, default: Any | None = None) -> Any:
+    return entry.options.get(key, entry.data.get(key, default))

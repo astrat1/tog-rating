@@ -4,12 +4,13 @@
     "step": {
       "user": {
         "title": "Configure TOG Rating",
-        "description": "Choose the indoor temperature, outdoor temperature, and weather entities used to generate child clothing and TOG guidance.",
+        "description": "Choose the indoor temperature sensor and weather entity used to generate child clothing and TOG guidance. The outdoor temperature sensor is optional, and current outdoor temperature can fall back to the weather entity.",
         "data": {
           "name": "Profile name",
           "indoor_temperature_entity": "Indoor temperature sensor",
-          "outdoor_temperature_entity": "Outdoor temperature sensor",
-          "weather_entity": "Weather entity"
+          "outdoor_temperature_entity": "Outdoor temperature sensor (optional)",
+          "weather_entity": "Weather entity",
+          "outdoor_temperature_weight": "Outdoor temperature weight"
         }
       }
     },
@@ -17,10 +18,33 @@
       "same_temperature_entity": "Indoor and outdoor temperature sensors must be different.",
       "sensor_unavailable": "One of the selected temperature sensors is unavailable.",
       "invalid_temperature_sensor": "Temperature sensors must expose numeric values in °C or °F.",
-      "weather_unavailable": "The selected weather entity is unavailable."
+      "weather_unavailable": "The selected weather entity is unavailable.",
+      "invalid_weather_temperature": "When no outdoor sensor is selected, the weather entity must expose a numeric current temperature in °C or °F.",
+      "invalid_outdoor_weight": "Outdoor temperature weight must be between 0% and 100%."
     },
     "abort": {
       "single_instance_allowed": "Only one TOG Rating configuration is supported right now."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "TOG Rating options",
+        "description": "Adjust the outdoor temperature source and how much influence outdoor temperature has on the recommendation.",
+        "data": {
+          "outdoor_temperature_entity": "Outdoor temperature sensor (optional)",
+          "weather_entity": "Weather entity",
+          "outdoor_temperature_weight": "Outdoor temperature weight"
+        }
+      }
+    },
+    "error": {
+      "same_temperature_entity": "Indoor and outdoor temperature sensors must be different.",
+      "sensor_unavailable": "One of the selected temperature sensors is unavailable.",
+      "invalid_temperature_sensor": "Temperature sensors must expose numeric values in °C or °F.",
+      "weather_unavailable": "The selected weather entity is unavailable.",
+      "invalid_weather_temperature": "When no outdoor sensor is selected, the weather entity must expose a numeric current temperature in °C or °F.",
+      "invalid_outdoor_weight": "Outdoor temperature weight must be between 0% and 100%."
     }
   }
 }

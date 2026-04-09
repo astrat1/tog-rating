@@ -10,9 +10,11 @@ PLATFORMS: list[Platform] = [Platform.SENSOR]
 CONF_NAME = "name"
 CONF_INDOOR_SENSOR = "indoor_temperature_entity"
 CONF_OUTDOOR_SENSOR = "outdoor_temperature_entity"
+CONF_OUTDOOR_WEIGHT = "outdoor_temperature_weight"
 CONF_WEATHER_ENTITY = "weather_entity"
 
 DEFAULT_NAME = "Child TOG"
+DEFAULT_OUTDOOR_WEIGHT = 20
 UPDATE_INTERVAL = timedelta(minutes=15)
 
 DATA_CURRENT = "current"
