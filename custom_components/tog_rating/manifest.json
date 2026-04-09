@@ -1,0 +1,15 @@
+{
+  "domain": "tog_rating",
+  "name": "TOG Rating",
+  "version": "0.1.0",
+  "documentation": "https://github.com/anthonywales/tog-rating",
+  "issue_tracker": "https://github.com/anthonywales/tog-rating/issues",
+  "codeowners": [
+    "@anthonywales"
+  ],
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "config_flow": true,
+  "single_config_entry": true,
+  "requirements": []
+}

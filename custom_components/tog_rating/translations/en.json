@@ -1,0 +1,26 @@
+{
+  "title": "TOG Rating",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure TOG Rating",
+        "description": "Choose the indoor temperature, outdoor temperature, and weather entities used to generate child clothing and TOG guidance.",
+        "data": {
+          "name": "Profile name",
+          "indoor_temperature_entity": "Indoor temperature sensor",
+          "outdoor_temperature_entity": "Outdoor temperature sensor",
+          "weather_entity": "Weather entity"
+        }
+      }
+    },
+    "error": {
+      "same_temperature_entity": "Indoor and outdoor temperature sensors must be different.",
+      "sensor_unavailable": "One of the selected temperature sensors is unavailable.",
+      "invalid_temperature_sensor": "Temperature sensors must expose numeric values in °C or °F.",
+      "weather_unavailable": "The selected weather entity is unavailable."
+    },
+    "abort": {
+      "single_instance_allowed": "Only one TOG Rating configuration is supported right now."
+    }
+  }
+}
