@@ -1,12 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#17324d"/>
-      <stop offset="100%" stop-color="#2d5169"/>
+      <stop offset="0%" stop-color="#162d45"/>
+      <stop offset="100%" stop-color="#274763"/>
+    </linearGradient>
+    <linearGradient id="bag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f6f1e7"/>
+      <stop offset="100%" stop-color="#ece4d5"/>
     </linearGradient>
   </defs>
+
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <circle cx="392" cy="120" r="44" fill="#f0b23f" opacity="0.95"/>
-  <path d="M96 344c46-68 100-102 160-102s114 34 160 102" fill="none" stroke="#f5f0e6" stroke-width="28" stroke-linecap="round"/>
-  <text x="256" y="250" text-anchor="middle" font-family="Avenir Next, Helvetica, Arial, sans-serif" font-size="150" font-weight="700" fill="#f5f0e6">TOG</text>
+
+  <circle cx="126" cy="128" r="34" fill="#f0b23f"/>
+  <path d="M376 93c19 0 34 15 34 34 0 17-11 28-24 34 8-31-10-55-34-68 7 0 15 0 24 0z" fill="#f3efe6"/>
+
+  <path d="M184 158c0-40 32-72 72-72s72 32 72 72v20c30 12 52 41 52 75 0 11-2 21-6 31l-44 111c-10 25-34 41-61 41h-26c-27 0-51-16-61-41l-44-111c-4-10-6-20-6-31 0-34 22-63 52-75z" fill="url(#bag)"/>
+
+  <circle cx="256" cy="158" r="42" fill="#274763"/>
+  <circle cx="241" cy="151" r="5" fill="#f6f1e7" opacity="0.95"/>
+  <circle cx="271" cy="151" r="5" fill="#f6f1e7" opacity="0.95"/>
+  <path d="M238 174c12 10 24 10 36 0" fill="none" stroke="#f6f1e7" stroke-linecap="round" stroke-width="6" opacity="0.95"/>
+
+  <path d="M212 237h88" stroke="#d9ceb9" stroke-width="10" stroke-linecap="round"/>
+  <path d="M206 285h100" stroke="#d9ceb9" stroke-width="10" stroke-linecap="round"/>
+
+  <rect x="230" y="214" width="52" height="132" rx="22" fill="#274763" opacity="0.95"/>
+  <rect x="243" y="228" width="26" height="78" rx="10" fill="#f0b23f"/>
+  <circle cx="256" cy="334" r="20" fill="#f0b23f"/>
+
+  <text x="256" y="405" text-anchor="middle" font-family="Avenir Next, Helvetica, Arial, sans-serif" font-size="52" font-weight="700" fill="#274763">TOG</text>
 </svg>
