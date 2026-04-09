@@ -4,23 +4,24 @@
     "step": {
       "user": {
         "title": "Configure TOG Rating",
-        "description": "Choose the indoor temperature sensor and weather entity used to generate child clothing and TOG guidance. The outdoor temperature sensor is optional, and current outdoor temperature can fall back to the weather entity.",
+        "description": "Set up the sensors and preferences for sleep clothing recommendations.",
         "data": {
           "name": "Profile name",
           "indoor_temperature_entity": "Indoor temperature sensor",
-          "outdoor_temperature_entity": "Outdoor temperature sensor (optional)",
           "weather_entity": "Weather entity",
-          "outdoor_temperature_weight": "Outdoor temperature weight"
+          "indoor_humidity_entity": "Indoor humidity sensor (optional)",
+          "opening_sensors": "Opening sensors — windows and doors (optional)",
+          "child_mode": "Mode",
+          "base_layer_tog": "Base layer TOG (e.g. 0.5 for a cotton onesie)"
         }
       }
     },
     "error": {
-      "same_temperature_entity": "Indoor and outdoor temperature sensors must be different.",
-      "sensor_unavailable": "One of the selected temperature sensors is unavailable.",
+      "sensor_unavailable": "One of the selected sensors is unavailable.",
       "invalid_temperature_sensor": "Temperature sensors must expose numeric values in °C or °F.",
+      "invalid_humidity_sensor": "Humidity sensor must expose a numeric value.",
       "weather_unavailable": "The selected weather entity is unavailable.",
-      "invalid_weather_temperature": "When no outdoor sensor is selected, the weather entity must expose a numeric current temperature in °C or °F.",
-      "invalid_outdoor_weight": "Outdoor temperature weight must be between 0% and 100%."
+      "invalid_weather_temperature": "The weather entity must expose a numeric current temperature in °C or °F."
     },
     "abort": {
       "single_instance_allowed": "Only one TOG Rating configuration is supported right now."
@@ -30,21 +31,31 @@
     "step": {
       "init": {
         "title": "TOG Rating options",
-        "description": "Adjust the outdoor temperature source and how much influence outdoor temperature has on the recommendation.",
+        "description": "Update sensors, opening sensors, child mode, and base layer.",
         "data": {
-          "outdoor_temperature_entity": "Outdoor temperature sensor (optional)",
           "weather_entity": "Weather entity",
-          "outdoor_temperature_weight": "Outdoor temperature weight"
+          "indoor_humidity_entity": "Indoor humidity sensor (optional)",
+          "opening_sensors": "Opening sensors — windows and doors (optional)",
+          "child_mode": "Mode",
+          "base_layer_tog": "Base layer TOG (e.g. 0.5 for a cotton onesie)"
         }
       }
     },
     "error": {
-      "same_temperature_entity": "Indoor and outdoor temperature sensors must be different.",
-      "sensor_unavailable": "One of the selected temperature sensors is unavailable.",
+      "sensor_unavailable": "One of the selected sensors is unavailable.",
       "invalid_temperature_sensor": "Temperature sensors must expose numeric values in °C or °F.",
+      "invalid_humidity_sensor": "Humidity sensor must expose a numeric value.",
       "weather_unavailable": "The selected weather entity is unavailable.",
-      "invalid_weather_temperature": "When no outdoor sensor is selected, the weather entity must expose a numeric current temperature in °C or °F.",
-      "invalid_outdoor_weight": "Outdoor temperature weight must be between 0% and 100%."
+      "invalid_weather_temperature": "The weather entity must expose a numeric current temperature in °C or °F."
+    }
+  },
+  "selector": {
+    "child_mode": {
+      "options": {
+        "baby": "Baby",
+        "toddler": "Toddler",
+        "child": "Child"
+      }
     }
   }
 }
