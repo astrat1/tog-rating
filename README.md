@@ -10,6 +10,8 @@ TOG Rating is a Home Assistant custom integration that turns an indoor temperatu
 
 ![TOG Rating current and forecast cards](assets/tog-rating-screenshot.png)
 
+![TOG Rating entities and device view](assets/tog-rating-screenshot-2.png)
+
 ## HACS repository type
 
 Add this repository to HACS as an `Integration` repository.
