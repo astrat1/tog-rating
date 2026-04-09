@@ -17,10 +17,12 @@ from .const import (
     CONF_INDOOR_SENSOR,
     CONF_NAME,
     CONF_OPENING_SENSORS,
+    CONF_TEMP_OFFSET,
     CONF_WEATHER_ENTITY,
     DEFAULT_BASE_LAYER_TOG,
     DEFAULT_CHILD_MODE,
     DEFAULT_NAME,
+    DEFAULT_TEMP_OFFSET,
     DOMAIN,
 )
 
@@ -33,9 +35,6 @@ class TogRatingConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return TogRatingOptionsFlow(config_entry)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
-
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -77,6 +76,7 @@ class TogRatingOptionsFlow(config_entries.OptionsFlow):
             CONF_OPENING_SENSORS: _entry_default(self.config_entry, CONF_OPENING_SENSORS, []),
             CONF_CHILD_MODE: _entry_default(self.config_entry, CONF_CHILD_MODE, DEFAULT_CHILD_MODE),
             CONF_BASE_LAYER_TOG: _entry_default(self.config_entry, CONF_BASE_LAYER_TOG, DEFAULT_BASE_LAYER_TOG),
+            CONF_TEMP_OFFSET: _entry_default(self.config_entry, CONF_TEMP_OFFSET, DEFAULT_TEMP_OFFSET),
         }
         return self.async_show_form(
             step_id="init",
@@ -137,6 +137,12 @@ def _build_schema(
         )
     )
 
+    schema[vol.Required(CONF_TEMP_OFFSET, default=user_input.get(CONF_TEMP_OFFSET, DEFAULT_TEMP_OFFSET))] = (
+        selector.NumberSelector(
+            selector.NumberSelectorConfig(min=-3.0, max=3.0, step=0.5, unit_of_measurement="°C", mode=selector.NumberSelectorMode.SLIDER)
+        )
+    )
+
     return vol.Schema(schema)
 
 
@@ -147,6 +153,7 @@ def _normalize_input(user_input: dict[str, Any]) -> dict[str, Any]:
     if not normalized.get(CONF_OPENING_SENSORS):
         normalized[CONF_OPENING_SENSORS] = []
     normalized[CONF_BASE_LAYER_TOG] = float(normalized.get(CONF_BASE_LAYER_TOG, DEFAULT_BASE_LAYER_TOG))
+    normalized[CONF_TEMP_OFFSET] = float(normalized.get(CONF_TEMP_OFFSET, DEFAULT_TEMP_OFFSET))
     return normalized
 
 

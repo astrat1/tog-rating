@@ -26,6 +26,9 @@ CONF_OUTDOOR_WEIGHT = "outdoor_temperature_weight"
 DEFAULT_NAME = "Child TOG"
 DEFAULT_CHILD_MODE = "baby"
 DEFAULT_BASE_LAYER_TOG = 0.5
+DEFAULT_TEMP_OFFSET = 0.0
+
+CONF_TEMP_OFFSET = "temp_offset"
 
 # Dynamic outdoor weighting (fractions, not percent)
 OUTDOOR_WEIGHT_OPEN = 0.35      # any opening sensor open > threshold

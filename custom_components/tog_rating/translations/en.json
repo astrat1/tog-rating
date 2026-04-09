@@ -12,7 +12,8 @@
           "indoor_humidity_entity": "Indoor humidity sensor (optional)",
           "opening_sensors": "Opening sensors — windows and doors (optional)",
           "child_mode": "Mode",
-          "base_layer_tog": "Base layer TOG (e.g. 0.5 for a cotton onesie)"
+          "base_layer_tog": "Base layer TOG (e.g. 0.5 for a cotton onesie)",
+          "temp_offset": "Temperature adjustment — shift recommendations warmer (+) or cooler (−)"
         }
       }
     },
@@ -37,7 +38,8 @@
           "indoor_humidity_entity": "Indoor humidity sensor (optional)",
           "opening_sensors": "Opening sensors — windows and doors (optional)",
           "child_mode": "Mode",
-          "base_layer_tog": "Base layer TOG (e.g. 0.5 for a cotton onesie)"
+          "base_layer_tog": "Base layer TOG (e.g. 0.5 for a cotton onesie)",
+          "temp_offset": "Temperature adjustment — shift recommendations warmer (+) or cooler (−)"
         }
       }
     },

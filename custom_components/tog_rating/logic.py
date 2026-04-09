@@ -98,7 +98,7 @@ _BABY: dict[str, dict] = {
             "Light cotton onesie",
             "2.5 TOG sleep sack",
         ],
-        "general_message": "Room's on the cooler side — good night for the heavier sack.",
+        "general_message": "Room's on the cooler side — reach for the heavier sack.",
         "risk": "cool",
     },
     "extra_warm": {
@@ -122,7 +122,7 @@ _TODDLER: dict[str, dict] = {
             "Short-sleeve cotton PJs or shorts and tee",
             "0.5 TOG sleep sack, or skip the sack if the room stays warm",
         ],
-        "general_message": "Too warm for the standard sack tonight.",
+        "general_message": "Too warm for the standard sack.",
         "risk": "warm",
     },
     "light": {
@@ -152,7 +152,7 @@ _TODDLER: dict[str, dict] = {
             "Footed cotton or jersey knit pajamas",
             "1.0 TOG sleep sack",
         ],
-        "general_message": "Clothing carries the warmth tonight, sack stays the same.",
+        "general_message": "Clothing carries the warmth, sack stays the same.",
         "risk": "cool",
     },
     "extra_warm": {
@@ -185,7 +185,7 @@ _CHILD: dict[str, dict] = {
             "Light cotton long pajamas",
             "Thin blanket",
         ],
-        "general_message": "Mild night, light blanket.",
+        "general_message": "Mild temps, light blanket.",
         "risk": "comfortable",
     },
     "balanced": {
@@ -205,7 +205,7 @@ _CHILD: dict[str, dict] = {
             "Flannel or jersey knit footed pajamas",
             "Warm blanket",
         ],
-        "general_message": "Cooler room tonight — warmer PJs and a heavier blanket.",
+        "general_message": "Cooler room — warmer PJs and a heavier blanket.",
         "risk": "cool",
     },
     "extra_warm": {
@@ -307,6 +307,7 @@ def calculate_recommendation(
     forecast_time: datetime | None = None,
     wind_speed_kmh: float | None = None,
     precipitation_probability: int | None = None,
+    temp_offset: float = 0.0,
 ) -> RecommendationSnapshot:
     condition = condition or "unknown"
     indoor_weight = 1 - outdoor_weight
@@ -344,14 +345,15 @@ def calculate_recommendation(
         effective_temp -= 0.5
         adjustments.append("high rain chance")
 
-    # Bucket selection
-    if effective_temp >= 24:
+    # Bucket selection (temp_offset shifts all thresholds uniformly)
+    adjusted = effective_temp + temp_offset
+    if adjusted >= 24:
         bucket = "very_light"
-    elif effective_temp >= 22:
+    elif adjusted >= 22:
         bucket = "light"
-    elif effective_temp >= 20:
+    elif adjusted >= 20:
         bucket = "balanced"
-    elif effective_temp >= 17:
+    elif adjusted >= 17:
         bucket = "warm"
     else:
         bucket = "extra_warm"

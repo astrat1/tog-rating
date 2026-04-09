@@ -19,12 +19,14 @@ from .const import (
     CONF_INDOOR_SENSOR,
     CONF_NAME,
     CONF_OPENING_SENSORS,
+    CONF_TEMP_OFFSET,
     CONF_WEATHER_ENTITY,
     DATA_CURRENT,
     DATA_DAY,
     DATA_NIGHT,
     DEFAULT_BASE_LAYER_TOG,
     DEFAULT_CHILD_MODE,
+    DEFAULT_TEMP_OFFSET,
     DOMAIN,
     FORECAST_DAILY,
     FORECAST_HOURLY,
@@ -49,6 +51,7 @@ class TogRatingCoordinator(DataUpdateCoordinator[dict[str, RecommendationSnapsho
         self.opening_sensor_ids: list[str] = _entry_value(entry, CONF_OPENING_SENSORS) or []
         self.child_mode: str = _entry_value(entry, CONF_CHILD_MODE, DEFAULT_CHILD_MODE)
         self.base_layer_tog: float = _entry_value(entry, CONF_BASE_LAYER_TOG, DEFAULT_BASE_LAYER_TOG)
+        self.temp_offset: float = float(_entry_value(entry, CONF_TEMP_OFFSET, DEFAULT_TEMP_OFFSET))
         self._unsubscribe_state_listener = None
 
         super().__init__(
@@ -148,6 +151,7 @@ class TogRatingCoordinator(DataUpdateCoordinator[dict[str, RecommendationSnapsho
                     outdoor_temperature_source="weather",
                     wind_speed_kmh=wind_speed,
                     precipitation_probability=_safe_int(precipitation_probability),
+                    temp_offset=self.temp_offset,
                 ),
                 DATA_DAY: None,
                 DATA_NIGHT: None,
@@ -335,6 +339,7 @@ class TogRatingCoordinator(DataUpdateCoordinator[dict[str, RecommendationSnapsho
             forecast_time=self._parse_forecast_datetime(item),
             wind_speed_kmh=wind_speed,
             precipitation_probability=_safe_int(item.get("precipitation_probability")),
+            temp_offset=self.temp_offset,
         )
 
     def _parse_forecast_datetime(self, item: dict[str, Any]) -> datetime | None:
