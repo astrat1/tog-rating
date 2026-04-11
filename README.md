@@ -6,16 +6,6 @@ A Home Assistant custom integration that calculates age-appropriate sleep clothi
 
 ---
 
-## Screenshots
-
-![TOG Rating cards](assets/tog-rating-screenshot-main.png)
-
-![TOG Rating current and forecast cards](assets/tog-rating-screenshot.png)
-
-![TOG Rating entities and device view](assets/tog-rating-screenshot-2.png)
-
----
-
 ## Companion Card
 
 Install the Lovelace dashboard card separately:
@@ -435,6 +425,50 @@ automation:
           title: "Tonight's Sleep Setup"
           message: "{{ message }}"
 ```
+
+---
+
+## Dashboard Settings Card
+
+The integration's mutable settings are controlled via helper entities, not the config flow. A companion entities card in your dashboard gives you a single panel to view and change all of them without opening Developer Tools.
+
+Add this card to the child's room view alongside the TOG recommendation card:
+
+```yaml
+type: entities
+title: TOG Settings
+entities:
+  - entity: input_select.child_sleep_mode
+    name: Sleep Mode
+  - entity: input_boolean.child_uses_sleep_sack
+    name: Uses Sleep Sack
+  - entity: input_number.tog_temp_offset
+    name: Temperature Offset
+  - type: divider
+  - entity: input_datetime.tog_bedtime_notification_time
+    name: Notification Time
+  - entity: input_select.tog_notification_target
+    name: Notify
+  - type: divider
+  - entity: input_datetime.child_birthday
+    name: Birthday
+  - entity: sensor.child_age_months
+    name: Age (months)
+```
+
+### What Each Control Does
+
+| Entity | Effect |
+|---|---|
+| `input_select.child_sleep_mode` | Switches the clothing recommendation table — `baby`, `toddler`, or `child`. Can be changed manually or set automatically by milestone automations. |
+| `input_boolean.child_uses_sleep_sack` | When off and mode is `toddler`, switches to blanket/sheet language (toddler blanket mode). Has no effect in baby or child mode. |
+| `input_number.tog_temp_offset` | Shifts all recommendations warmer (positive) or cooler (negative) by up to ±3°C. Use when the standard calculation consistently feels one tier off for your room. |
+| `input_datetime.tog_bedtime_notification_time` | Time the nightly push notification fires. |
+| `input_select.tog_notification_target` | Who receives milestone and nightly notifications — one parent, the other, or both. |
+| `input_datetime.child_birthday` | Used to calculate current age in months. Feeds all milestone automations. |
+| `sensor.child_age_months` | Read-only. Displays the child's current age in whole months, derived from birthday. |
+
+Changes to any of these take effect on the next coordinator update (within 15 minutes, or immediately if the coordinator detects the helper change).
 
 ---
 
