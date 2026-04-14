@@ -58,7 +58,7 @@ Each tier has mode-specific clothing text. Base layer recommendations scale auto
 |---|---|---|
 | `baby` | 0–12 months | Cotton onesie always; sleep sack scaled to tier |
 | `toddler` | 12–24 months | PJs + sleep sack |
-| `toddler_blanket` | 18–24 months | Auto-activates when sleep sack boolean is off |
+| `toddler_blanket` | 18–24 months | Auto-activates when mode is `toddler` and the Uses Sleep Sack toggle is off |
 | `child` | 24+ months | PJs + blanket, no sleep sack |
 
 ### Sensors Created
@@ -99,7 +99,7 @@ The temperature thresholds and clothing recommendations in this integration are 
 - **AAP (American Academy of Pediatrics)** — advises against loose bedding for infants under 12 months; recommends sleep sacks as the safe alternative. Used to inform mode transitions at 12 and 24 months.
 - **Gro Company TOG chart** — widely cited industry reference for matching TOG sack to room temperature, consistent with Lullaby Trust guidance.
 
-The five temperature tiers in this integration map directly to The Lullaby Trust's recommended TOG bands:
+The five temperature tiers in this integration closely follow The Lullaby Trust's recommended TOG bands. Note that the warm tier uses heavier base layer clothing (footed or fleece PJs) to achieve equivalent warmth in toddler and child modes rather than always stepping up to a heavier sleep sack:
 
 | Effective Temp | Lullaby Trust guidance | This integration |
 |---|---|---|
@@ -261,10 +261,10 @@ Go to **Settings > Devices & Services > Add Integration** and search for **TOG R
 | Field | Description |
 |---|---|
 | Indoor humidity sensor | Improves accuracy in dry or humid rooms |
-| Opening sensors | Windows/doors — shifts outdoor weight when open |
-| Sleep mode entity | Override default helper entity (for multi-child setups) |
-| Bedding type entity | Override default helper entity |
-| Temperature offset entity | Override default helper entity |
+| Opening sensors | Window/door sensors — increases outdoor temperature influence when open for more than 60 minutes |
+| Sleep mode entity | The `input_select` that controls which clothing table is active. Defaults to `input_select.child_sleep_mode`. Set to a different entity ID when running multiple instances so each child uses their own sleep mode selector. |
+| Bedding type entity | The `input_boolean` that toggles between sleep sack and blanket/sheet language in toddler mode. Defaults to `input_boolean.child_uses_sleep_sack`. Set to a child-specific entity for multi-child setups. |
+| Temperature offset entity | The `input_number` used to shift recommendations warmer or cooler. Defaults to `input_number.tog_temp_offset`. Set to a child-specific entity to calibrate each child independently. |
 
 ---
 
@@ -556,6 +556,8 @@ automation:
 
 ## Nightly Notification
 
+Replace `childtog` in the entity IDs below with the slug derived from your instance name. For an instance named "Nursery TOG", the slug is `nurserytog`. Verify exact entity IDs in **Developer Tools > States**.
+
 ```yaml
 automation:
   - id: tog_bedtime_notification
@@ -583,7 +585,7 @@ automation:
 
 The integration's mutable settings are controlled via helper entities, not the config flow. A companion entities card in your dashboard gives you a single panel to view and change all of them without opening Developer Tools.
 
-Add this card to the child's room view alongside the TOG recommendation card:
+Add this card to the child's room view alongside the TOG recommendation card. Update entity IDs to match your own helpers if you used different names.
 
 ```yaml
 type: entities
@@ -732,7 +734,7 @@ tog-rating/
 │       ├── sensor.py           # Sensor platform
 │       ├── strings.json
 │       └── translations/
-├── assets/                     # Screenshots
+├── assets/                     # Brand assets and images
 ├── brands/                     # HACS brand icon
 └── hacs.json
 ```
