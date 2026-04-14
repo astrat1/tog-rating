@@ -75,6 +75,157 @@ Each sensor exposes a full attribute set — see [Sensor Attributes](#sensor-att
 
 ---
 
+## Recommendation Methodology
+
+### What is TOG?
+
+TOG (Thermal Overall Grade) is a standardized measure of thermal resistance defined in British Standard BS 5736. In infant and toddler sleep products, it rates how well a sleep sack or duvet retains heat. A higher TOG traps more warmth; a lower TOG allows more heat to escape.
+
+Common sleep sack TOG values and their intended use:
+
+| TOG | Intended room temperature |
+|---|---|
+| 0.2–0.5 | ≥ 24°C (75°F) — warm rooms |
+| 1.0 | 20–24°C (68–75°F) — typical room temperature |
+| 2.5 | 16–20°C (61–68°F) — cool or cold rooms |
+| 3.5 | < 16°C (61°F) — cold rooms (not used by this integration) |
+
+### Safety Guidelines and Frameworks
+
+The temperature thresholds and clothing recommendations in this integration are derived from published child sleep safety guidance:
+
+- **The Lullaby Trust** (UK) — primary source for room-temperature-to-TOG mappings. Their guidance directly links room temperature bands to appropriate TOG ratings and layering.
+- **NHS (UK)** — recommends keeping a baby's room between 16–20°C (61–68°F) and avoiding overheating as a SIDS risk factor.
+- **AAP (American Academy of Pediatrics)** — advises against loose bedding for infants under 12 months; recommends sleep sacks as the safe alternative. Used to inform mode transitions at 12 and 24 months.
+- **Gro Company TOG chart** — widely cited industry reference for matching TOG sack to room temperature, consistent with Lullaby Trust guidance.
+
+The five temperature tiers in this integration map directly to The Lullaby Trust's recommended TOG bands:
+
+| Effective Temp | Lullaby Trust guidance | This integration |
+|---|---|---|
+| ≥ 24°C (75°F) | 0.5 TOG or sheet only | Very Light — 0.2–0.5 TOG |
+| 22–24°C (71–75°F) | 1.0 TOG | Light — 1.0 TOG |
+| 20–22°C (68–71°F) | 1.0 TOG + light base layer | Balanced — 1.0 TOG |
+| 17–20°C (63–68°F) | 2.5 TOG or warmer base layer | Warm — heavier base, 1.0–2.5 TOG |
+| < 17°C (63°F) | 2.5 TOG + footed sleepsuit | Extra Warm — fleece/thermal + 2.5 TOG |
+
+For toddlers and children no longer using a sleep sack, equivalent warmth is achieved by adjusting the pajama weight (short-sleeve → long-sleeve → footed → fleece) and blanket weight (sheet → thin → light → warm → heavy), following the same temperature band logic.
+
+### Full Calculation Pipeline
+
+Each recommendation is computed in five steps:
+
+#### Step 1 — Temperature blend
+
+```
+effective_temp = (indoor_temp × indoor_weight) + (outdoor_temp × outdoor_weight)
+```
+
+Default weights: **90% indoor / 10% outdoor** for an HVAC-controlled home. The outdoor component acknowledges that outdoor temperature still influences room temperature through walls, windows, and HVAC cycling, even when the thermostat is active.
+
+If any configured opening sensor (window or door) has been open for more than 60 minutes, outdoor weight increases to **35%** to reflect natural ventilation replacing HVAC-controlled air.
+
+#### Step 2 — Humidity adjustment
+
+Humidity affects perceived temperature because moisture changes the rate of heat transfer from the body and alters how the air feels against skin.
+
+```
+humidity_adj = (indoor_humidity - 50) × 0.06
+             + (outdoor_humidity - 50) × 0.04 × outdoor_weight
+```
+
+The 50% baseline is neutral. Each percentage point above 50% adds 0.06°C (indoor) or a scaled outdoor contribution; each point below subtracts it.
+
+Example: 70% indoor humidity → +1.2°C effective (humid air feels warmer). 30% humidity → -1.2°C (dry air feels cooler and the body loses heat faster).
+
+#### Step 3 — Weather condition adjustments
+
+Additional adjustments account for outdoor conditions that can affect how cool or drafty a room feels, particularly with any air infiltration or ventilation:
+
+| Condition | Adjustment |
+|---|---|
+| Wet weather (rain, snow, drizzle, etc.) | −1.5°C |
+| Windy condition from weather entity | −0.5°C |
+| Wind speed 25–39 km/h | −1.0°C |
+| Wind speed ≥ 40 km/h | −2.0°C |
+| Rain probability ≥ 60% | −0.5°C |
+
+Wind adjustments stack with the windy-condition flag. Wet weather and wind are independent adjustments.
+
+#### Step 4 — Temperature offset
+
+A user-configurable offset (±3°C, default 0) is added last, after all other adjustments. This shifts all five tier thresholds equally, allowing calibration if the recommendations consistently feel one tier too warm or too cold for a specific room or child.
+
+```
+adjusted = effective_temp + temp_offset
+```
+
+#### Step 5 — Tier selection and clothing lookup
+
+The adjusted effective temperature is mapped to a tier:
+
+| Adjusted effective temp | Tier |
+|---|---|
+| ≥ 24°C | very_light |
+| 22–24°C | light |
+| 20–22°C | balanced |
+| 17–20°C | warm |
+| < 17°C | extra_warm |
+
+The tier is used as a key to look up mode-specific clothing from the table for the active sleep mode (baby, toddler, toddler_blanket, or child).
+
+### Clothing Tables by Mode
+
+#### Baby (0–12 months)
+
+A cotton onesie base layer is always worn regardless of temperature. Warmth is adjusted entirely through the sleep sack TOG.
+
+| Tier | TOG | Clothing |
+|---|---|---|
+| Very light | 0.2 | Short-sleeve cotton onesie + 0.2 TOG sack |
+| Light | 0.5 | Short-sleeve cotton onesie + 0.5 TOG sack |
+| Balanced | 1.0 | Light cotton onesie + 1.0 TOG sack |
+| Warm | 2.5 | Light cotton onesie + 2.5 TOG sack |
+| Extra warm | 2.5 | Light cotton onesie + footed sleepsuit + 2.5 TOG sack |
+
+#### Toddler with sleep sack (12–24 months)
+
+Base layer scales with temperature. TOG steps up only at the cold extreme.
+
+| Tier | TOG | Clothing |
+|---|---|---|
+| Very light | 0.5 | Short-sleeve cotton PJs + 0.5 TOG sack (or skip sack) |
+| Light | 1.0 | Light short-sleeve cotton PJs + 1.0 TOG sack |
+| Balanced | 1.0 | Long-sleeve cotton/jersey PJs + 1.0 TOG sack |
+| Warm | 1.0 | Footed cotton/jersey PJs + 1.0 TOG sack |
+| Extra warm | 2.5 | Footed fleece PJs or thermal base + 2.5 TOG sack |
+
+#### Toddler with blanket (18–24 months)
+
+Activates when "Uses Sleep Sack" is off. TOG is not rated (blanket weight varies); warmth is adjusted through PJ weight and blanket selection.
+
+| Tier | Clothing |
+|---|---|
+| Very light | Short-sleeve PJs + sheet only |
+| Light | Short-sleeve PJs + thin blanket |
+| Balanced | Long-sleeve PJs + light blanket |
+| Warm | Footed PJs + warm blanket |
+| Extra warm | Footed fleece PJs or thermal base + heavy blanket |
+
+#### Child (24+ months)
+
+No sleep sack. Warmth adjusted through PJ weight and blanket selection.
+
+| Tier | Clothing |
+|---|---|
+| Very light | Cotton shorts and short-sleeve top + sheet only |
+| Light | Light cotton long PJs + thin blanket |
+| Balanced | Long-sleeve cotton/jersey PJs + light blanket |
+| Warm | Flannel or footed PJs + warm blanket |
+| Extra warm | Thermal base under fleece/flannel PJs + heavy blanket |
+
+---
+
 ## Installation
 
 ### Via HACS
